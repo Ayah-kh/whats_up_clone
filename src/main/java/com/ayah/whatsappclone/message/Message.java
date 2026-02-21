@@ -25,7 +25,7 @@ import lombok.Setter;
 @AllArgsConstructor
 @Entity
 @Table(name = "messages")
-@NamedQuery(name = MessageConstant.FIND_MESSAGE_BY_ID,
+@NamedQuery(name = MessageConstant.FIND_MESSAGE_BY_CHAT_ID,
         query = "SELECT m FROM Message m WHERE m.chat.id = :chatId ORDER BY m.createdDate")
 @NamedQuery(name = MessageConstant.SET_MESSAGE_TO_SEEN_BY_CHAT,
         query = "UPDATE Message SET state = :newState WHERE chat.id = :chatId")
