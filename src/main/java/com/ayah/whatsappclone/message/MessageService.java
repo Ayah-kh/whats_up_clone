@@ -2,6 +2,7 @@ package com.ayah.whatsappclone.message;
 
 import com.ayah.whatsappclone.chat.Chat;
 import com.ayah.whatsappclone.chat.ChatRepository;
+import com.ayah.whatsappclone.file.FileService;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.Authentication;
@@ -17,6 +18,7 @@ public class MessageService {
     final private MessageRepository messageRepository;
     final private ChatRepository chatRepository;
     final private MessageMapper mapper;
+    final private FileService fileService;
 
     public void saveMessage(MessageRequest messageRequest) {
         Chat chat = chatRepository.findById(messageRequest.getChatId())
@@ -61,10 +63,27 @@ public class MessageService {
 
         final String senderId = getSenderId(chat, authentication);
         final String recipientId = getRecipientId(chat, authentication);
+
+        final String filePath = fileService.saveFile(file, senderId);
+
+        Message message = new Message();
+        message.setChat(chat);
+        message.setSenderId(senderId);
+        message.setReceiverId(recipientId);
+        message.setMessageType(MessageType.IMAGE);
+        message.setState(MessageState.SENT);
+        message.setMediaFilePath(filePath);
+        messageRepository.save(message);
+
+        // TODO: 22/02/2026 notification
+
     }
 
     private String getSenderId(Chat chat, Authentication authentication) {
-        return null;
+        if (chat.getSender().getId().equals(authentication.getName())) {
+            return chat.getSender().getId();
+        }
+        return chat.getRecipient().getId();
     }
 
     private String getRecipientId(Chat chat, Authentication authentication) {
