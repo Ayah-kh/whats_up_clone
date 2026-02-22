@@ -7,6 +7,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
 import java.util.List;
 
 @Service
@@ -51,6 +52,19 @@ public class MessageService {
         messageRepository.setMessagesToSeenByChatId(chatId, MessageState.SEEN);
 
         // TODO: 21/02/2026 send notification
+    }
+
+    public void uploadMediaMessage(String chatId, MultipartFile file, Authentication authentication) {
+
+        Chat chat = chatRepository.findById(chatId)
+                .orElseThrow(() -> new EntityNotFoundException("Chat Not Found"));
+
+        final String senderId = getSenderId(chat, authentication);
+        final String recipientId = getRecipientId(chat, authentication);
+    }
+
+    private String getSenderId(Chat chat, Authentication authentication) {
+        return null;
     }
 
     private String getRecipientId(Chat chat, Authentication authentication) {
