@@ -1,5 +1,6 @@
 package com.ayah.whatsappclone.message;
 
+import com.ayah.whatsappclone.file.FileUtils;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -13,7 +14,7 @@ public class MessageMapper {
                 .messageType(message.getMessageType())
                 .messageState(message.getState())
                 .createdAt(message.getCreatedDate())
-                // TODO: 21/02/2026 read the media file
+                .media(FileUtils.readFileFromLocation(message.getMediaFilePath()))
                 .build();
     }
 }
