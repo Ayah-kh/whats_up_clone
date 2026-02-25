@@ -3,6 +3,10 @@ package com.ayah.whatsappclone.message;
 import com.ayah.whatsappclone.chat.Chat;
 import com.ayah.whatsappclone.chat.ChatRepository;
 import com.ayah.whatsappclone.file.FileService;
+import com.ayah.whatsappclone.file.FileUtils;
+import com.ayah.whatsappclone.notification.Notification;
+import com.ayah.whatsappclone.notification.NotificationService;
+import com.ayah.whatsappclone.notification.NotificationType;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.Authentication;
@@ -15,10 +19,11 @@ import java.util.List;
 @RequiredArgsConstructor
 public class MessageService {
 
-    final private MessageRepository messageRepository;
-    final private ChatRepository chatRepository;
-    final private MessageMapper mapper;
-    final private FileService fileService;
+    private final MessageRepository messageRepository;
+    private final ChatRepository chatRepository;
+    private final MessageMapper mapper;
+    private final FileService fileService;
+    private final NotificationService notificationService;
 
     public void saveMessage(MessageRequest messageRequest) {
         Chat chat = chatRepository.findById(messageRequest.getChatId())
@@ -34,7 +39,17 @@ public class MessageService {
 
         messageRepository.save(message);
 
-        // TODO: 21/02/2026 send Notification
+        Notification notification = Notification.builder()
+                .chatId(chat.getId())
+                .messageType(messageRequest.getType())
+                .content(messageRequest.getContent())
+                .senderId(messageRequest.getSenderId())
+                .receiverId(messageRequest.getReceiverId())
+                .notificationType(NotificationType.MESSAGE)
+                .chatName(chat.getChatName(message.getSenderId()))
+                .build();
+
+        notificationService.sendNotification(message.getReceiverId(), notification);
     }
 
     public List<MessageResponse> findChatMessage(String chatId) {
@@ -53,7 +68,14 @@ public class MessageService {
         final String recipientId = getRecipientId(chat, authentication);
         messageRepository.setMessagesToSeenByChatId(chatId, MessageState.SEEN);
 
-        // TODO: 21/02/2026 send notification
+        Notification notification = Notification.builder()
+                .chatId(chat.getId())
+                .senderId(recipientId)
+                .receiverId(getSenderId(chat, authentication))
+                .notificationType(NotificationType.SEEN)
+                .build();
+
+        notificationService.sendNotification(recipientId, notification);
     }
 
     public void uploadMediaMessage(String chatId, MultipartFile file, Authentication authentication) {
@@ -75,7 +97,16 @@ public class MessageService {
         message.setMediaFilePath(filePath);
         messageRepository.save(message);
 
-        // TODO: 22/02/2026 notification
+        Notification notification = Notification.builder()
+                .chatId(chat.getId())
+                .messageType(MessageType.IMAGE)
+                .senderId(senderId)
+                .receiverId(recipientId)
+                .notificationType(NotificationType.IMAGE)
+                .media(FileUtils.readFileFromLocation(filePath))
+                .build();
+
+        notificationService.sendNotification(recipientId, notification);
 
     }
 
