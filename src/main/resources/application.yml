@@ -28,4 +28,13 @@ spring:
     file:
       uploads:
         media-output-path: ./uploads
+# OpenAPI/Swagger configuration - at ROOT level
+springdoc:
+  default=products-media-type: application/json
+
+# Custom application properties - at ROOT level
+application:
+  file:
+    uploads:
+      media-output-path: ./uploads
 
