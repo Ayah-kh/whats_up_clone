@@ -24,10 +24,6 @@ spring:
     multipart:
       max-file-size: 50MB
 
-  application:
-    file:
-      uploads:
-        media-output-path: ./uploads
 # OpenAPI/Swagger configuration - at ROOT level
 springdoc:
   default=products-media-type: application/json

@@ -11,6 +11,7 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
 import jakarta.persistence.NamedQuery;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.OrderBy;
@@ -43,9 +44,11 @@ public class Chat extends BaseAuditingEntity {
     @GeneratedValue(strategy = GenerationType.UUID)
     private String id;
 
+    @ManyToOne
     @JoinColumn(name = "sender_id")
     private User sender;
 
+    @ManyToOne
     @JoinColumn(name = "recipient_id")
     private User recipient;
 
