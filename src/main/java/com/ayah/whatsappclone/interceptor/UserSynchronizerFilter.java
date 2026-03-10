@@ -13,6 +13,12 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 import java.io.IOException;
 
+// TODO: 09/03/2026  AuthenticationSuccessEvent, make the user sync more efficient
+/*
+If you want, I can also show you a much cleaner architecture used in production
+ with Keycloak where user synchronization happens automatically during JWT conversion,
+  eliminating this filter entirely. It’s significantly better design.
+ */
 @Component
 @RequiredArgsConstructor
 public class UserSynchronizerFilter extends OncePerRequestFilter {
@@ -25,9 +31,7 @@ public class UserSynchronizerFilter extends OncePerRequestFilter {
             JwtAuthenticationToken token = ((JwtAuthenticationToken) SecurityContextHolder.getContext().getAuthentication());
 
             userSynchronizer.synchronizeWithIdp(token.getToken());
-
         }
-
-
+        filterChain.doFilter(request, response);
     }
 }

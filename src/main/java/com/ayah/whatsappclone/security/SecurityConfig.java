@@ -1,5 +1,7 @@
 package com.ayah.whatsappclone.security;
 
+import com.ayah.whatsappclone.interceptor.UserSynchronizerFilter;
+import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpHeaders;
@@ -7,6 +9,7 @@ import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
+import org.springframework.security.oauth2.server.resource.web.authentication.BearerTokenAuthenticationFilter;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
@@ -16,7 +19,10 @@ import java.util.Collections;
 
 @Configuration
 @EnableWebSecurity
+@RequiredArgsConstructor
 public class SecurityConfig {
+
+    private final UserSynchronizerFilter userSynchronizerFilter;
 
     private static final String[] PERMITTED =
             {"/v3/api-docs",
@@ -45,6 +51,8 @@ public class SecurityConfig {
                 .oauth2ResourceServer(auth ->
                         auth.jwt(token ->
                                 token.jwtAuthenticationConverter(new KeycloakJwtAuthenticationConverter())));
+
+        http.addFilterAfter(userSynchronizerFilter, BearerTokenAuthenticationFilter.class);
 
         return http.build();
     }
